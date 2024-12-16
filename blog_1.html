@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photography Blog</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f4f4f4;
+            --text-color: #333;
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --accent-color: #e74c3c;
+        }
+
+        [data-theme='dark'] {
+            --bg-color: #121212;
+            --text-color: #ffffff;
+            --primary-color: #4a90e2;
+            --secondary-color: #27ae60;
+            --accent-color: #ff6b6b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .navbar {
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 5%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+
+        .navbar a {
+            color: var(--text-color);
+            text-decoration: none;
+            margin: 0 15px;
+            position: relative;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        .navbar a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+
+        .navbar a:hover::after {
+            width: 100%;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+
+        .page {
+            display: none;
+            min-height: 100vh;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            padding: 80px 5% 20px;
+        }
+
+        .page.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Home Page Styles */
+        #home .hero-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            opacity: 0;
+            transition: opacity 2s ease;
+        }
+
+        #home .hero-text h1 {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        /* Gallery Styles */
+        .gallery-carousel {
+            display: flex;
+            overflow: hidden;
+            position: relative;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            height: 500px;
+        }
+
+        .carousel-inner {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+
+        .carousel-item {
+            min-width: 100%;
+            height: 500px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .carousel-item img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .carousel-controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .carousel-control {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        /* About Page Styles */
+        #about .admin-photo {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid var(--primary-color);
+            transition: transform 0.3s ease;
+        }
+
+        #about .admin-photo:hover {
+            transform: scale(1.05) rotate(3deg);
+        }
+
+        /* Contact Page Styles */
+        .contact-form {
+            max-width: 500px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 10px;
+        }
+
+        .contact-form input, 
+        .contact-form textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: var(--text-color);
+            border-radius: 5px;
+        }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .social-icons a {
+            color: var(--text-color);
+            font-size: 2.5rem;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+
+        .social-icons a:hover {
+            transform: scale(1.2);
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <div id="particles-js"></div>
+
+    <nav class="navbar">
+        <div>
+            <a href="#" data-page="home">Home</a>
+            <a href="#" data-page="gallery">Gallery</a>
+            <a href="#" data-page="about">About</a>
+            <a href="#" data-page="contact">Contact</a>
+        </div>
+        <button class="theme-toggle">🌓</button>
+    </nav>
+
+    <div id="home" class="page active">
+        <div class="hero-text">
+            <h1>Arko's Photography</h1>
+            <p>Vagabond with a camera </p>
+        </div>
+    </div>
+
+    <div id="gallery" class="page">
+        <h2 style="text-align: center; margin-bottom: 30px;">Photo Gallery</h2>
+        <div class="gallery-carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item">
+                    <img src="C:\Users\LENOVO\Downloads\Kolkata1.jpeg" alt="Gallery Image 1">
+                </div>
+                <div class="carousel-item">
+                    <img src="C:\Users\LENOVO\Downloads\kolkata2.jpeg" alt="Gallery Image 2">
+                </div>
+                <div class="carousel-item">
+                    <img src="C:\Users\LENOVO\OneDrive\Documents\WhatsApp Image 2024-11-18 at 13.02.38_0612c507.jpg" alt="Gallery Image 3">
+                </div>
+                <div class="carousel-item">
+                    <img src="C:\Users\LENOVO\OneDrive\Documents\kolkata.jpeg.jpg" alt="Gallery Image 4">
+                </div>
+                <div class="carousel-item">
+                    <img src="C:\Users\LENOVO\OneDrive\Documents\WhatsApp Image 2024-11-18 at 13.00.52_f448b59c.jpg" alt="Gallery Image 5">
+                </div>
+                <div class="carousel-item">
+                    <img src="C:\Users\LENOVO\OneDrive\Documents\WhatsApp Image 2024-11-18 at 13.00.52_d22c8d34.jpg" alt="Gallery Image 6">
+                </div>
+            </div>
+        </div>
+        <div class="carousel-controls">
+            <button class="carousel-control prev">Previous</button>
+            <button class="carousel-control next">Next</button>
+        </div>
+    </div>
+
+    <div id="about" class="page">
+        <h2 style="text-align: center; margin-bottom: 30px;">About Me</h2>
+        <div style="display: flex; justify-content: center; align-items: center; gap: 50px;">
+            <img src="C:\Users\LENOVO\OneDrive\Documents\WhatsApp Image 2024-12-11 at 16.39.20_62bbf3a0.jpg" alt="Admin Photo" class="admin-photo">
+            <div style="max-width: 500px;">
+                <h3>Arko Chowdhury</h3>
+                <p>Salute! Myself Arko, an amateur photographer with a passion for capturing the beauty in everyday moments. Whether it’s a breathtaking landscape, a candid smile, or the magic of light and shadow, I love exploring the world through my lens and sharing my journey as I learn and grow in this art form.</p>
+                <p>I strive to find the perfect in the imperfect.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="contact" class="page">
+        <h2 style="text-align: center; margin-bottom: 30px;">Coffee Maybe?</h2>
+        <form class="contact-form">
+            <input type="text" placeholder="Your Name" required>
+            <input type="email" placeholder="Your Email" required>
+            <textarea placeholder="Your Message" rows="5" required></textarea>
+            <button type="submit" style="
+                width: 100%;
+                padding: 10px;
+                background: var(--primary-color);
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            ">Send Message</button>
+        </form>
+        
+        <div class="social-icons">
+            <a href="mailto:arkochowdhury295@gmail.com" target="_blank"><i class="fas fa-envelope"></i></a>
+            <a href="https://www.instagram.com/_emotional_black_male/" target="_blank"><i class="fab fa-instagram"></i></a>
+            <a href= "https://www.linkedin.com/in/arko-chowdhury-8a74952b7/overlay/about-this-profile/?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base%3BOLMtHVzzRcyIs81MSzJkmA%3D%3D" target="_blank"><i class="fab fa-linkedin"></i></a>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        // Particle Background
+        particlesJS('particles-js', {
+            particles: {
+                number: { value: 90, density: { enable: true, value_area: 800 } },
+                color: { value: '#3498db' },
+                shape: { type: 'circle' },
+                opacity: { value: 0.5, random: false },
+                size: { value: 3, random: true },
+                line_linked: { enable: true, distance: 150, color: '#3498db', opacity: 0.4, width: 1 },
+                move: { enable: true, speed: 6, direction: 'none', random: false }
+            }
+        });
+
+        // Page Navigation
+        document.querySelectorAll('.navbar a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const pageId = e.target.getAttribute('data-page');
+                
+                // Hide all pages
+                document.querySelectorAll('.page').forEach(page => {
+                    page.classList.remove('active');
+                });
+
+                // Show selected page
+                document.getElementById(pageId).classList.add('active');
+
+                // Fading Text for Home Page
+                if (pageId === 'home') {
+                    const heroText = document.querySelector('#home .hero-text');
+                    heroText.style.opacity = '1';
+                }
+            });
+        });
+
+        // Gallery Carousel
+        const carousel = document.querySelector('.carousel-inner');
+        const prevBtn = document.querySelector('.carousel-control.prev');
+        const nextBtn = document.querySelector('.carousel-control.next');
+        let currentSlide = 0;
+        const totalSlides = document.querySelectorAll('.carousel-item').length;
+
+        nextBtn.addEventListener('click', () => {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            carousel.style.transform = `translateX(-${currentSlide * 100}%)`;
+        });
+
+        prevBtn.addEventListener('click', () => {
+            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+            carousel.style.transform = `translateX(-${currentSlide * 100}%)`;
+        });
+
+        // Dark Mode Toggle
+        const themeToggle = document.querySelector('.theme-toggle');
+        themeToggle.addEventListener('click', () => {
+            document.documentElement.setAttribute('data-theme', 
+                document.documentElement.getAttribute('data-theme') === 'dark' ? '' : 'dark'
+            );
+        });
+
+        // Initial Hero Text Animation
+        window.addEventListener('load', () => {
+            const heroText = document.querySelector('#home .hero-text');
+            heroText.style.opacity = '1';
+        });
+    </script>
+    <footer>
+      <div style="text-align: center;">
+        <p>&copy;Developed and Maintained by GRWM 2024</p>
+    </div>
+</footer>
+</body>
+</html>
